@@ -4,27 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Family Log FIFO</title>
+    <title>Family Log</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #0F172A; --card: #1E293B; --primary: #6366F1; --text: #F8FAFC; --text-muted: #94A3B8; --input-bg: #334155; --success: #10B981; --warning: #F59E0B; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; }
+        
         #sync-banner { background: var(--primary); color: white; padding: 8px; text-align: center; border-radius: 30px; margin-bottom: 15px; font-size: 11px; font-weight: 800; display: none; }
         .page { display: none; } .page.active { display: block; }
-        .card { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .card { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); position: relative; }
+        
         .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; }
         .btn-back { background: var(--input-bg); color: var(--text); border: none; padding: 10px 18px; border-radius: 12px; margin-bottom: 15px; font-weight: 600; cursor: pointer; }
-        input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--input-bg); background: var(--input-bg); color: white; margin: 10px 0 15px 0; }
+        .btn-sync { background: #334155; color: white; border: none; padding: 8px 15px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; }
         
+        /* Correzione Layout Input */
+        input, select { 
+            width: 100%; 
+            max-width: 100%; 
+            padding: 14px; 
+            border-radius: 12px; 
+            border: 1px solid var(--input-bg); 
+            background: var(--input-bg); 
+            color: white; 
+            margin: 8px 0 15px 0; 
+            font-size: 16px; 
+            display: block;
+        }
+
         .group-header { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 15px; font-weight: 800; background: rgba(99, 102, 241, 0.15); border-radius: 16px 16px 0 0; color: var(--primary); }
-        .detail-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 12px 15px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .detail-row { display: grid; grid-template-columns: 1.2fr 0.8fr 1fr 1.2fr; padding: 12px 10px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; }
         .col-center { text-align: center; } .col-right { text-align: right; }
         
-        /* FIFO Styles */
-        .fifo-active { border-left: 5px solid var(--success) !important; background: rgba(16, 185, 129, 0.15) !important; }
-        .fifo-partial { border-left: 5px solid var(--warning) !important; background: rgba(245, 158, 11, 0.15) !important; }
+        .action-btn { padding: 6px; border-radius: 8px; border: none; font-size: 12px; cursor: pointer; margin-left: 4px; opacity: 0.8; }
+        .btn-edit { background: var(--warning); color: #000; }
+        .btn-del { background: #EF4444; color: #fff; }
+
+        .fifo-active { border-left: 5px solid var(--success) !important; background: rgba(16, 185, 129, 0.1) !important; }
+        .fifo-partial { border-left: 5px solid var(--warning) !important; background: rgba(245, 158, 11, 0.1) !important; }
 
         .payment-batch { background: rgba(255,255,255,0.03); margin: 5px 0; border-radius: 12px; overflow: hidden; }
         .batch-summary { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 12px 15px; cursor: pointer; font-weight: 600; border-left: 3px solid var(--primary); }
@@ -36,7 +55,10 @@
     <div id="sync-banner">Sincronizzazione...</div>
 
     <div id="p-home" class="page active">
-        <h1 style="font-weight:800;">Family Log</h1>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h1 style="margin:0; font-weight:800;">Family Log</h1>
+            <button class="btn-sync" onclick="syncFromCloud()">🔄 Sincronizza</button>
+        </div>
         <div class="card" onclick="nav('inserimento')"><h2>➕ Registra Ore</h2></div>
         <div class="card" onclick="nav('riepilogo')"><h2>📊 Da Saldare</h2></div>
         <div class="card" onclick="nav('storico')"><h2>📜 Storico Pagamenti</h2></div>
@@ -48,8 +70,8 @@
         <div class="card">
             <label>Collaboratore</label><select id="ins-chi"></select>
             <label>Data</label><input type="date" id="ins-data">
-            <label>Ore</label><input type="number" id="ins-ore" step="0.5">
-            <button class="btn-main" onclick="saveData()">SALVA</button>
+            <label>Ore lavorate</label><input type="number" id="ins-ore" step="0.5" placeholder="Es: 4.5">
+            <button class="btn-main" onclick="saveData()">SALVA REGISTRAZIONE</button>
         </div>
     </div>
 
@@ -79,16 +101,27 @@
     const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzyvzW3pUKw8dRa1CMFJd9-3N6HVdSnPBDtqUutwN2fD3o8athmMRbWEul3-vVXyHKtGg/exec"; 
     let db = { logs: [], collabs: [] };
 
+    // Formattazione data corretta per visualizzazione
+    function fmtData(dStr) {
+        if(!dStr) return "-";
+        const d = new Date(dStr);
+        return d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    }
+
     async function syncFromCloud() {
-        document.getElementById('sync-banner').style.display = 'block';
+        const banner = document.getElementById('sync-banner');
+        banner.style.display = 'block';
+        banner.innerText = "Sincronizzazione...";
         try {
-            const response = await fetch(GOOGLE_URL);
-            const data = await response.json();
+            const r = await fetch(GOOGLE_URL);
+            const data = await r.json();
             db.logs = data.logs;
             db.collabs = data.collabs;
-            document.getElementById('sync-banner').innerText = "Sincronizzato ✓";
-            setTimeout(() => document.getElementById('sync-banner').style.display = 'none', 1500);
-        } catch (e) { document.getElementById('sync-banner').innerText = "Offline"; }
+            banner.innerText = "Sincronizzato ✓";
+            if(document.getElementById('p-riepilogo').classList.contains('active')) renderRiepilogo();
+            if(document.getElementById('p-storico').classList.contains('active')) renderStorico();
+        } catch (e) { banner.innerText = "Errore connessione"; }
+        setTimeout(() => banner.style.display = 'none', 1500);
     }
 
     function nav(p) {
@@ -106,8 +139,11 @@
     async function saveData() {
         const nome = document.getElementById('ins-chi').value;
         const col = db.collabs.find(c => c.nome === nome);
-        const record = { nome: nome, data: document.getElementById('ins-data').value, ore: parseFloat(document.getElementById('ins-ore').value), prezzo: col.paga, azione: "REGISTRA" };
-        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(record) });
+        const data = document.getElementById('ins-data').value;
+        const ore = parseFloat(document.getElementById('ins-ore').value);
+        if(!ore || !data) return alert("Inserisci dati validi");
+        
+        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({azione:"REGISTRA", nome:nome, data:data, ore:ore, prezzo:col.paga}) });
         await syncFromCloud(); nav('home');
     }
 
@@ -118,41 +154,61 @@
         
         let html = `<h2>Da Saldare</h2>`;
         for(const nome in grouped) {
-            const totResiduo = grouped[nome].reduce((s, l) => s + parseFloat(l.residuo), 0);
-            const safeNome = nome.replace(/\s/g, '');
+            const tot = grouped[nome].reduce((s, l) => s + parseFloat(l.residuo), 0);
+            const safe = nome.replace(/\s/g, '');
             html += `<div class="card" style="padding:0; overflow:hidden;">
-                <div class="group-header"><span>${nome}</span><span></span><span class="col-right">${totResiduo.toFixed(2)}€</span></div>
-                <div id="list-${safeNome}">
-                    ${grouped[nome].map(l => `<div class="detail-row row-${safeNome}" data-val="${l.residuo}">
-                        <span>${l.data.split('T')[0]}</span><span class="col-center">${l.ore}h</span><span class="col-right">${parseFloat(l.residuo).toFixed(2)}€</span>
-                    </div>`).join('')}
+                <div class="group-header"><span>${nome}</span><span></span><span class="col-right">${tot.toFixed(2)}€</span></div>
+                <div>
+                    ${grouped[nome].map(l => `
+                        <div class="detail-row row-${safe}" data-val="${l.residuo}">
+                            <span>${fmtData(l.data)}</span>
+                            <span class="col-center">${l.ore}h</span>
+                            <span class="col-right">${parseFloat(l.residuo).toFixed(2)}€</span>
+                            <div style="text-align:right">
+                                <button class="action-btn btn-edit" onclick="editRecord('${l.nome}', '${l.data}', ${l.ore}, ${l.prezzo})">✏️</button>
+                                <button class="action-btn btn-del" onclick="deleteRecord('${l.nome}', '${l.data}')">🗑️</button>
+                            </div>
+                        </div>`).join('')}
                 </div>
                 <div style="padding:15px; background:rgba(0,0,0,0.2); display:flex; gap:10px;">
-                    <input type="number" id="pay-${safeNome}" placeholder="Importo" style="margin:0; flex:1" oninput="highlightFIFO('${safeNome}', this.value)">
-                    <button class="btn-main" style="width:auto; padding:0 20px" onclick="eseguiPagamento('${nome}', '${safeNome}')">PAGA</button>
+                    <input type="number" id="pay-${safe}" placeholder="Somma da pagare" style="margin:0; flex:1" oninput="highlightFIFO('${safe}', this.value)">
+                    <button class="btn-main" style="width:auto; padding:0 20px" onclick="eseguiPagamento('${nome}', '${safe}')">PAGA</button>
                 </div>
             </div>`;
         }
         cont.innerHTML = html || "Tutto saldato!";
     }
 
-    function highlightFIFO(safeNome, valore) {
-        const rows = document.querySelectorAll(`.row-${safeNome}`);
-        let budget = parseFloat(valore) || 0;
-        rows.forEach(row => {
-            const costo = parseFloat(row.getAttribute('data-val'));
-            row.classList.remove('fifo-active', 'fifo-partial');
-            if (budget <= 0) return;
-            if (budget >= costo - 0.01) { row.classList.add('fifo-active'); budget -= costo; }
-            else { row.classList.add('fifo-partial'); budget = 0; }
+    function highlightFIFO(safe, val) {
+        const rows = document.querySelectorAll(`.row-${safe}`);
+        let b = parseFloat(val) || 0;
+        rows.forEach(r => {
+            const c = parseFloat(r.getAttribute('data-val'));
+            r.classList.remove('fifo-active', 'fifo-partial');
+            if (b <= 0) return;
+            if (b >= c - 0.01) { r.classList.add('fifo-active'); b -= c; }
+            else { r.classList.add('fifo-partial'); b = 0; }
         });
     }
 
-    async function eseguiPagamento(nome, safeNome) {
-        const importo = document.getElementById('pay-' + safeNome).value;
-        if(!importo || importo <= 0) return;
-        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({azione:"PAGAMENTO_PARZIALE", nome:nome, importoVersato: importo}) });
-        await syncFromCloud(); nav('home');
+    async function eseguiPagamento(nome, safe) {
+        const imp = document.getElementById('pay-' + safe).value;
+        if(!imp || imp <= 0) return;
+        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({azione:"PAGAMENTO_PARZIALE", nome:nome, importoVersato: imp}) });
+        await syncFromCloud(); renderRiepilogo();
+    }
+
+    async function deleteRecord(nome, data) {
+        if(!confirm("Eliminare questa riga?")) return;
+        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({azione:"ELIMINA", nome:nome, data:data}) });
+        await syncFromCloud();
+    }
+
+    async function editRecord(nome, data, ore, prezzo) {
+        const nO = prompt("Nuove ore:", ore); if(nO === null) return;
+        const nD = prompt("Nuova data (AAAA-MM-DD):", data.split('T')[0]); if(!nD) return;
+        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({azione:"MODIFICA", nome:nome, dataVecchia:data, nuovaData:nD, nuoveOre:nO, prezzo:prezzo}) });
+        await syncFromCloud();
     }
 
     function renderStorico() {
@@ -165,26 +221,31 @@
                 const d = l.dataPagamento.split('T')[0];
                 (acc[d] = acc[d] || []).push(l); return acc; 
             }, {});
-            html += `<div class="group-header"><span>${nome}</span><span></span><span></span></div>`;
+            html += `<div class="group-header" style="margin-top:10px"><span>${nome}</span><span></span><span></span></div>`;
             for(const d in byDate) {
                 const tot = byDate[d].reduce((s, l) => s + parseFloat(l.pagatoEffettivo), 0);
-                const id = 'h-'+nome+d;
+                const id = 'h-'+nome.replace(/\s/g, '')+d.replace(/-/g, '');
                 html += `<div class="payment-batch">
                     <div class="batch-summary" onclick="const e=document.getElementById('${id}'); e.style.display=e.style.display==='block'?'none':'block'">
-                        <span>📅 ${d}</span><span></span><span class="col-right">${tot.toFixed(2)}€</span>
+                        <span>📅 Pagato il ${fmtData(d)}</span><span></span><span class="col-right">${tot.toFixed(2)}€</span>
                     </div>
                     <div id="${id}" style="display:none; background:rgba(0,0,0,0.2)">
-                        ${byDate[d].map(l => `<div class="detail-row"><span>Lav. ${l.data.split('T')[0]}</span><span></span><span class="col-right">${parseFloat(l.pagatoEffettivo).toFixed(2)}€</span></div>`).join('')}
+                        ${byDate[d].map(l => `<div class="detail-row" style="grid-template-columns: 1fr 1fr 1fr; opacity:0.8;">
+                            <span>Lav. ${fmtData(l.data)}</span>
+                            <span class="col-center">${l.ore}h</span>
+                            <span class="col-right">${parseFloat(l.pagatoEffettivo).toFixed(2)}€</span>
+                        </div>`).join('')}
                     </div>
                 </div>`;
             }
         }
-        cont.innerHTML = html;
+        cont.innerHTML = html || "Nessun pagamento registrato.";
     }
 
     async function addCollab() {
         const n = document.getElementById('new-nome').value;
         const p = document.getElementById('new-paga').value;
+        if(!n || !p) return;
         await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({azione:"ADD_COLLAB", nome:n, paga:p}) });
         await syncFromCloud(); nav('setup');
     }
