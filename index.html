@@ -4,305 +4,144 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Family Manager Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>Family Manager Sync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #4F46E5; --bg: #F8FAFC; --card: #FFFFFF; --text: #1E293B; --accent: #F59E0B; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        :root { --primary: #4F46E5; --bg: #F8FAFC; --card: #FFFFFF; --text: #1E293B; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; }
         .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.2s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        /* UI Elements */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        h1 { font-weight: 800; font-size: 22px; color: var(--primary); margin: 0; }
-        .card { background: var(--card); padding: 20px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #E2E8F0; margin-bottom: 15px; }
-        .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        .btn-main:active { opacity: 0.8; }
-        .btn-outline { background: transparent; border: 1px solid #CBD5E1; padding: 8px 16px; border-radius: 8px; margin-bottom: 20px; cursor: pointer; font-weight: 600; }
-        
-        /* Form */
-        label { display: block; font-size: 11px; font-weight: 700; color: #64748B; margin-bottom: 5px; text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #E2E8F0; margin-bottom: 15px; font-size: 16px; background: #F1F5F9; font-family: inherit; }
-        
-        /* Grouping & List Style */
-        .group-container { margin-bottom: 25px; border-radius: 20px; overflow: hidden; border: 1px solid #E2E8F0; background: white; }
-        .group-header { display: flex; justify-content: space-between; align-items: center; background: #F1F5F9; padding: 15px; font-weight: 700; border-bottom: 1px solid #E2E8F0; }
-        .group-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 12px 15px; border-bottom: 1px solid #F1F5F9; font-size: 13px; align-items: center; }
-        .group-row:last-of-type { border-bottom: none; }
-        .total-badge { background: var(--primary); color: white; padding: 4px 10px; border-radius: 8px; font-size: 12px; margin-left: 5px; }
-
-        /* Calendar highlight */
-        .calendar-info { font-size: 13px; margin-top: -5px; margin-bottom: 20px; padding: 10px; background: #fff; border-radius: 10px; border: 1px dashed #CBD5E1; }
-        .dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-
-        /* Setup Collaborator* */
-        .coll-item { border: 1px solid #E2E8F0; padding: 15px; border-radius: 15px; margin-bottom: 10px; position: relative; background: #fdfdfd; }
-        .btn-del { position: absolute; top: 15px; right: 15px; color: #EF4444; border: none; background: none; font-size: 18px; cursor: pointer; }
-        
-        #sync-msg { display: none; text-align: center; font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 13px; }
+        .page.active { display: block; }
+        .card { background: var(--card); padding: 20px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #E2E8F0; margin-bottom: 15px; cursor: pointer; }
+        .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #E2E8F0; margin-bottom: 15px; background: #F1F5F9; }
+        .group-header { display: flex; justify-content: space-between; background: #F1F5F9; padding: 15px; font-weight: 700; border-radius: 15px 15px 0 0; }
+        .group-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 12px 15px; border-bottom: 1px solid #F1F5F9; background: white; font-size: 13px; }
+        #sync-banner { background: #E0E7FF; color: #4338CA; padding: 10px; text-align: center; border-radius: 10px; margin-bottom: 15px; font-size: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- HOME PAGE -->
+    <div id="sync-banner">🔄 Sincronizzazione in corso...</div>
+
     <div id="p-home" class="page active">
-        <div class="header">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <h1>Family Log 🏠</h1>
-            <button onclick="nav('setup')" style="background:none; border:none; font-size:24px; cursor:pointer;">⚙️</button>
+            <button onclick="nav('setup')" style="background:none; border:none; font-size:24px;">⚙️</button>
         </div>
-        <div class="card" onclick="nav('inserimento')" style="cursor:pointer">
-            <div style="font-size: 32px; margin-bottom: 10px;">➕</div>
-            <div style="font-weight: 700; font-size: 18px;">Registra Ore</div>
-            <div style="color: #64748B; font-size: 13px;">Aggiungi lavoro ai Collaborator*</div>
-        </div>
-        <div class="card" onclick="nav('riepilogo')" style="cursor:pointer">
-            <div style="font-size: 32px; margin-bottom: 10px;">📊</div>
-            <div style="font-weight: 700; font-size: 18px;">Da Saldare</div>
-            <div style="color: #64748B; font-size: 13px;">Vedi riepilogo e paga</div>
-        </div>
-        <div class="card" onclick="nav('storico')" style="cursor:pointer">
-            <div style="font-size: 32px; margin-bottom: 10px;">📜</div>
-            <div style="font-weight: 700; font-size: 18px;">Storico Saldati</div>
-            <div style="color: #64748B; font-size: 13px;">Archivio pagamenti effettuati</div>
-        </div>
+        <div class="card" onclick="nav('inserimento')"><h2>➕ Registra Ore</h2></div>
+        <div class="card" onclick="nav('riepilogo')"><h2>📊 Da Saldare</h2></div>
+        <div class="card" onclick="nav('storico')"><h2>📜 Storico</h2></div>
     </div>
 
-    <!-- INSERIMENTO -->
     <div id="p-inserimento" class="page">
-        <button class="btn-outline" onclick="nav('home')">← Indietro</button>
+        <button onclick="nav('home')">← Indietro</button>
         <div class="card">
-            <div id="sync-msg">☁️ SINCRONIZZAZIONE...</div>
-            <label>Collaborator*</label>
-            <select id="ins-chi" onchange="checkCalendar()"></select>
-            
-            <label>Data</label>
-            <input type="date" id="ins-data" onchange="checkCalendar()">
-            
-            <div id="calendar-status" class="calendar-info"></div>
-            
-            <label>Ore impiegate</label>
-            <input type="number" id="ins-ore" step="0.5" value="1">
-            
-            <button class="btn-main" id="btn-save" onclick="saveData()">SALVA REGISTRAZIONE</button>
+            <label>Collaborator*</label><select id="ins-chi"></select>
+            <label>Data</label><input type="date" id="ins-data">
+            <label>Ore</label><input type="number" id="ins-ore" step="0.5" value="1">
+            <button class="btn-main" onclick="saveData()">SALVA</button>
         </div>
     </div>
 
-    <!-- RIEPILOGO DA SALDARE -->
-    <div id="p-riepilogo" class="page">
-        <button class="btn-outline" onclick="nav('home')">← Indietro</button>
-        <div id="content-riepilogo"></div>
-    </div>
+    <div id="p-riepilogo" class="page"><button onclick="nav('home')">← Indietro</button><div id="content-riepilogo"></div></div>
+    <div id="p-storico" class="page"><button onclick="nav('home')">← Indietro</button><div id="content-storico"></div></div>
 
-    <!-- STORICO SALDATI -->
-    <div id="p-storico" class="page">
-        <button class="btn-outline" onclick="nav('home')">← Indietro</button>
-        <div id="content-storico"></div>
-    </div>
-
-    <!-- SETUP COLLABORATORI -->
     <div id="p-setup" class="page">
-        <button class="btn-outline" onclick="nav('home')">← Indietro</button>
+        <button onclick="nav('home')">← Indietro</button>
         <div class="card">
-            <h2 style="margin-top:0">Gestione Collaborator*</h2>
+            <h3>Gestione Collaborator*</h3>
             <div id="list-collabs"></div>
-            <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-            <h3>Aggiungi Nuovo</h3>
-            <label>Nome</label>
-            <input type="text" id="new-nome" placeholder="es. Federica">
-            <label>Paga Oraria (€)</label>
-            <input type="number" id="new-paga" value="10">
-            <label>Colore Calendario</label>
-            <select id="new-colore">
-                <option value="#F97316">Arancione (Josie)</option>
-                <option value="#EC4899">Rosa (Federica)</option>
-                <option value="#06B6D4">Azzurro</option>
-                <option value="#8B5CF6">Viola</option>
-                <option value="#22C55E">Verde</option>
-                <option value="#EF4444">Rosso</option>
-            </select>
-            <button class="btn-main" onclick="addCollab()" style="background:#1E293B">AGGIUNGI AI COLLABORATOR*</button>
+            <input type="text" id="new-nome" placeholder="Nome"><input type="number" id="new-paga" placeholder="Paga €/h">
+            <button class="btn-main" onclick="addCollab()">Aggiungi</button>
         </div>
     </div>
 </div>
 
 <script>
-    // ************************************************************
-    // INCOLLA IL TUO URL DI GOOGLE QUI SOTTO
-    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzyvzW3pUKw8dRa1CMFJd9-3N6HVdSnPBDtqUutwN2fD3o8athmMRbWEul3-vVXyHKtGg/exec";
-    // ************************************************************
+    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzyvzW3pUKw8dRa1CMFJd9-3N6HVdSnPBDtqUutwN2fD3o8athmMRbWEul3-vVXyHKtGg/exec"; // <--- METTI IL TUO URL
 
-    let db = JSON.parse(localStorage.getItem('familyManagerPro')) || {
-        collabs: [
-            {id: 'c1', nome: 'Josie', paga: 14, colore: '#F97316'},
-            {id: 'c2', nome: 'Federica', paga: 10, colore: '#EC4899'}
-        ],
+    let db = JSON.parse(localStorage.getItem('familySync')) || {
+        collabs: [{id:'1', nome:'Josie', paga:14, colore:'#F97316'}],
         logs: []
     };
 
-    function save() { localStorage.setItem('familyManagerPro', JSON.stringify(db)); }
+    async function syncFromCloud() {
+        document.getElementById('sync-banner').style.display = 'block';
+        try {
+            const response = await fetch(GOOGLE_URL);
+            const cloudData = await response.json();
+            // Trasforma i dati cloud nel formato dell'app
+            db.logs = cloudData.map(l => ({
+                nome: l.nome,
+                data: l.data.split('T')[0], // Gestisce date ISO
+                ore: l.ore,
+                prezzo: l.prezzo,
+                pagato: l.saldato === "SI"
+            }));
+            localStorage.setItem('familySync', JSON.stringify(db));
+            document.getElementById('sync-banner').innerText = "✅ Sincronizzato con Excel";
+            setTimeout(() => document.getElementById('sync-banner').style.display = 'none', 2000);
+        } catch (e) {
+            document.getElementById('sync-banner').innerText = "⚠️ Modalità Offline";
+        }
+    }
 
     function nav(p) {
         document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
         document.getElementById('p-' + p).classList.add('active');
         if(p === 'riepilogo') renderRiepilogo(false);
         if(p === 'storico') renderRiepilogo(true);
-        if(p === 'inserimento') renderIns();
         if(p === 'setup') renderCollabs();
-    }
-
-    // GESTIONE COLLABORATORI
-    function renderCollabs() {
-        const cont = document.getElementById('list-collabs');
-        cont.innerHTML = db.collabs.map(c => `
-            <div class="coll-item">
-                <div class="dot" style="background:${c.colore}"></div>
-                <b>${c.nome}</b> — ${c.paga}€/h
-                <button class="btn-del" onclick="delCollab('${c.id}')">✕</button>
-            </div>
-        `).join('');
-    }
-
-    function addCollab() {
-        const nome = document.getElementById('new-nome').value;
-        const paga = document.getElementById('new-paga').value;
-        const colore = document.getElementById('new-colore').value;
-        if(!nome) return alert("Inserisci un nome");
-        db.collabs.push({id: 'c'+Date.now(), nome, paga: parseFloat(paga), colore});
-        save(); renderCollabs();
-        document.getElementById('new-nome').value = '';
-    }
-
-    function delCollab(id) {
-        if(confirm("Eliminare questo collaborator*?")) {
-            db.collabs = db.collabs.filter(c => c.id !== id);
-            save(); renderCollabs();
-        }
-    }
-
-    // INSERIMENTO & CALENDARIO
-    function renderIns() {
-        const sel = document.getElementById('ins-chi');
-        sel.innerHTML = db.collabs.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-        document.getElementById('ins-data').valueAsDate = new Date();
-        checkCalendar();
-    }
-
-    function checkCalendar() {
-        const data = document.getElementById('ins-data').value;
-        const status = document.getElementById('calendar-status');
-        const giornate = db.logs.filter(l => l.data === data);
-        
-        if(giornate.length > 0) {
-            status.innerHTML = '<b>Già registrati oggi:</b><br>' + giornate.map(l => {
-                const c = db.collabs.find(col => col.nome === l.nome);
-                return `<span style="color:${c?c.colore:'#000'}; margin-right:10px;"><span class="dot" style="background:${c?c.colore:'#000'}"></span>${l.nome} (${l.ore}h)</span>`;
-            }).join(' ');
-        } else {
-            status.innerHTML = '<span style="color:#94A3B8">Nessuna registrazione per questa data.</span>';
-        }
+        if(p === 'inserimento') renderIns();
     }
 
     async function saveData() {
-        const colId = document.getElementById('ins-chi').value;
-        const collab = db.collabs.find(c => c.id === colId);
-        const btn = document.getElementById('btn-save');
-        const loader = document.getElementById('sync-msg');
-
-        const record = {
-            nome: collab.nome,
-            data: document.getElementById('ins-data').value,
-            ore: parseFloat(document.getElementById('ins-ore').value),
-            prezzo: collab.paga,
-            azione: "REGISTRA"
-        };
-
-        btn.disabled = true;
-        loader.style.display = 'block';
+        const col = db.collabs.find(c => c.id === document.getElementById('ins-chi').value);
+        const record = { nome: col.nome, data: document.getElementById('ins-data').value, ore: parseFloat(document.getElementById('ins-ore').value), prezzo: col.paga, azione: "REGISTRA" };
         
-        try {
-            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(record) });
-            db.logs.push({...record, pagato: false});
-            save();
-            alert("✅ Sincronizzato con Excel!");
-            nav('home');
-        } catch(e) { 
-            alert("❌ Errore Cloud, ma salvato sul telefono."); 
-            db.logs.push({...record, pagato: false});
-            save();
-            nav('home');
-        } finally {
-            btn.disabled = false;
-            loader.style.display = 'none';
-        }
+        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(record) });
+        await syncFromCloud(); // Ricarica subito
+        nav('home');
     }
 
-    // RIEPILOGO & STORICO (RAGGRUPPAMENTO)
     function renderRiepilogo(isStorico) {
         const cont = document.getElementById(isStorico ? 'content-storico' : 'content-riepilogo');
-        const logs = db.logs.filter(l => isStorico ? l.pagato : !l.pagato);
+        const filtered = db.logs.filter(l => l.pagato === isStorico);
+        const grouped = filtered.reduce((acc, l) => { (acc[l.nome] = acc[l.nome] || []).push(l); return acc; }, {});
         
-        const grouped = logs.reduce((acc, l) => {
-            if(!acc[l.nome]) acc[l.nome] = [];
-            acc[l.nome].push(l);
-            return acc;
-        }, {});
-
-        let html = `<h2 style="margin-bottom:20px;">${isStorico ? 'Archivio Saldati' : 'Ore da Saldare'}</h2>`;
-        
-        if(Object.keys(grouped).length === 0) {
-            html += `<div class="card" style="text-align:center; color:#94A3B8;">Nessun record presente.</div>`;
-        }
-
+        let html = `<h2>${isStorico ? 'Storico' : 'Da Saldare'}</h2>`;
         for(const nome in grouped) {
-            const totOre = grouped[nome].reduce((s, l) => s + l.ore, 0);
             const totEuro = grouped[nome].reduce((s, l) => s + (l.ore * l.prezzo), 0);
-            
-            html += `
-                <div class="group-container">
-                    <div class="group-header">
-                        <span>${nome}</span>
-                        <div>
-                            <span class="total-badge" style="background:#64748B">${totOre}h</span>
-                            <span class="total-badge" style="background:#22C55E">${totEuro}€</span>
-                        </div>
-                    </div>
-                    <div style="background: #fff;">
-                        ${grouped[nome].map(l => `
-                            <div class="group-row">
-                                <span style="font-weight:500;">${l.data}</span>
-                                <span style="color:#64748B">${l.ore} h</span>
-                                <span style="text-align:right; font-weight:700;">${l.ore * l.prezzo}€</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                    ${!isStorico ? `<div style="padding:15px; background:#f9f9f9;"><button class="btn-main" onclick="salda('${nome}')">Salda tutto per ${nome}</button></div>` : ''}
-                </div>
-            `;
+            html += `<div class="group-header"><span>${nome}</span><span>${totEuro}€</span></div>`;
+            html += grouped[nome].map(l => `<div class="group-row"><span>${l.data}</span><span>${l.ore}h</span><span>${l.ore*l.prezzo}€</span></div>`).join('');
+            if(!isStorico) html += `<button class="btn-main" onclick="salda('${nome}')">Salda ${nome}</button><br><br>`;
         }
-        cont.innerHTML = html;
+        cont.innerHTML = html || "Nessun dato.";
     }
 
     async function salda(nome) {
-        if(!confirm(`Vuoi segnare come SALDATO su Excel tutto il lavoro di ${nome}?`)) return;
-        
-        document.getElementById('sync-msg').style.display = 'block';
-        try {
-            await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({azione: "SALDA_TUTTO", nome: nome}) });
-            db.logs.forEach(l => { if(l.nome === nome) l.pagato = true; });
-            save();
-            alert("✅ Saldo completato su Excel!");
-            nav('home');
-        } catch(e) { alert("❌ Errore connessione col Cloud"); }
-        document.getElementById('sync-msg').style.display = 'none';
+        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({azione:"SALDA_TUTTO", nome:nome}) });
+        await syncFromCloud();
+        nav('home');
     }
 
-    window.onload = () => nav('home');
+    function renderCollabs() {
+        document.getElementById('list-collabs').innerHTML = db.collabs.map(c => `<div>${c.nome} (${c.paga}€/h)</div>`).join('');
+    }
+
+    function addCollab() {
+        db.collabs.push({id:Date.now().toString(), nome:document.getElementById('new-nome').value, paga:parseFloat(document.getElementById('new-paga').value)});
+        localStorage.setItem('familySync', JSON.stringify(db)); renderCollabs();
+    }
+
+    function renderIns() {
+        document.getElementById('ins-chi').innerHTML = db.collabs.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+        document.getElementById('ins-data').valueAsDate = new Date();
+    }
+
+    window.onload = syncFromCloud;
 </script>
 </body>
-
 </html>
