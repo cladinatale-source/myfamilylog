@@ -4,96 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Family Log Dark</title>
+    <title>Family Log Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #0F172A;
-            --card: #1E293B;
-            --primary: #6366F1;
-            --accent: #F43F5E;
-            --text: #F8FAFC;
-            --text-muted: #94A3B8;
-            --input-bg: #334155;
-        }
-
+        :root { --bg: #0F172A; --card: #1E293B; --primary: #6366F1; --text: #F8FAFC; --text-muted: #94A3B8; --input-bg: #334155; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; padding: 20px; 
-            display: flex; justify-content: center; 
-        }
-
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; }
-
-        /* Banner Sync */
-        #sync-banner { 
-            background: var(--primary); color: white; 
-            padding: 8px; text-align: center; border-radius: 30px; 
-            margin-bottom: 20px; font-size: 11px; font-weight: 800;
-            text-transform: uppercase; letter-spacing: 1px;
-            display: none;
-        }
-
-        .page { display: none; animation: fadeIn 0.3s ease; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* UI Elements */
-        .card { 
-            background: var(--card); padding: 20px; 
-            border-radius: 24px; border: 1px solid rgba(255,255,255,0.05);
-            margin-bottom: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
-        }
-
-        .btn-main { 
-            background: var(--primary); color: white; border: none; 
-            width: 100%; padding: 18px; border-radius: 16px; 
-            font-weight: 700; cursor: pointer; font-size: 16px;
-            transition: transform 0.2s;
-        }
-        .btn-main:active { transform: scale(0.98); }
-
-        .btn-back {
-            background: var(--input-bg); color: var(--text); border: none;
-            padding: 10px 20px; border-radius: 12px; margin-bottom: 20px;
-            font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
-        }
-
-        input, select { 
-            width: 100%; padding: 14px; border-radius: 12px; 
-            border: 1px solid var(--input-bg); background: var(--input-bg); 
-            color: white; margin: 10px 0 20px 0; font-size: 16px;
-        }
-
-        label { color: var(--text-muted); font-size: 14px; font-weight: 600; margin-left: 5px; }
-
-        /* Allineamento Tabelle */
-        .group-header { 
-            display: grid; grid-template-columns: 2fr 1fr 1fr;
-            padding: 15px; font-weight: 800; background: rgba(99, 102, 241, 0.1);
-            border-radius: 16px 16px 0 0; color: var(--primary);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
+        #sync-banner { background: var(--primary); color: white; padding: 8px; text-align: center; border-radius: 30px; margin-bottom: 15px; font-size: 11px; font-weight: 800; display: none; }
+        .page { display: none; } .page.active { display: block; }
+        .card { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-back { background: var(--input-bg); color: var(--text); border: none; padding: 10px 18px; border-radius: 12px; margin-bottom: 15px; font-weight: 600; cursor: pointer; }
+        input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--input-bg); background: var(--input-bg); color: white; margin: 10px 0 15px 0; }
         
-        .group-row { 
-            display: grid; grid-template-columns: 2fr 1fr 1fr;
-            padding: 14px 15px; border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 13px; color: var(--text-muted);
-            background: var(--card);
-        }
-
-        .col-center { text-align: center; }
-        .col-right { text-align: right; }
-
-        .history-tag {
-            font-size: 10px; background: var(--input-bg); padding: 2px 8px;
-            border-radius: 6px; color: var(--text-muted); display: block; margin-top: 4px;
-        }
-
+        /* Tabelle e Accordion */
+        .group-header { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 15px; font-weight: 800; background: rgba(99, 102, 241, 0.15); border-radius: 16px; color: var(--primary); margin-top: 20px; }
+        .payment-batch { background: rgba(255,255,255,0.03); margin: 5px 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .batch-summary { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 12px 15px; cursor: pointer; font-weight: 600; font-size: 14px; border-left: 3px solid var(--primary); }
+        .batch-details { display: none; background: rgba(0,0,0,0.2); padding: 5px 0; }
+        .detail-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 8px 15px; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .col-center { text-align: center; } .col-right { text-align: right; }
     </style>
 </head>
 <body>
@@ -101,178 +32,151 @@
 <div class="container">
     <div id="sync-banner">Sincronizzazione...</div>
 
-    <!-- HOME -->
     <div id="p-home" class="page active">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-            <h1 style="font-weight:800; margin:0;">Family Log</h1>
-            <button onclick="nav('setup')" style="background:var(--card); border:none; padding:10px; border-radius:12px; font-size:20px; cursor:pointer;">⚙️</button>
-        </div>
-        <div class="card" onclick="nav('inserimento')" style="border-left: 5px solid var(--primary);">
-            <h2 style="margin:0; font-size:18px;">➕ Registra Ore</h2>
-            <p style="color:var(--text-muted); margin:5px 0 0 0; font-size:14px;">Aggiungi sessione di lavoro</p>
-        </div>
-        <div class="card" onclick="nav('riepilogo')" style="border-left: 5px solid #10B981;">
-            <h2 style="margin:0; font-size:18px;">📊 Da Saldare</h2>
-            <p style="color:var(--text-muted); margin:5px 0 0 0; font-size:14px;">Controlla i sospesi</p>
-        </div>
-        <div class="card" onclick="nav('storico')" style="border-left: 5px solid var(--accent);">
-            <h2 style="margin:0; font-size:18px;">📜 Storico Pagamenti</h2>
-            <p style="color:var(--text-muted); margin:5px 0 0 0; font-size:14px;">Vedi i pagati</p>
-        </div>
+        <h1 style="font-weight:800;">Family Log</h1>
+        <div class="card" onclick="nav('inserimento')"><h2>➕ Registra Ore</h2></div>
+        <div class="card" onclick="nav('riepilogo')"><h2>📊 Da Saldare</h2></div>
+        <div class="card" onclick="nav('storico')"><h2>📜 Storico Pagamenti</h2></div>
+        <div class="card" onclick="nav('setup')"><h2>⚙️ Configurazione</h2></div>
     </div>
 
-    <!-- INSERIMENTO -->
     <div id="p-inserimento" class="page">
         <button class="btn-back" onclick="nav('home')">← Indietro</button>
         <div class="card">
-            <label>Chi ha lavorato?</label>
-            <select id="ins-chi"></select>
-            
-            <label>In che data?</label>
-            <input type="date" id="ins-data">
-            
-            <label>Quante ore?</label>
-            <input type="number" id="ins-ore" step="0.5">
-            
-            <button class="btn-main" onclick="saveData()">SALVA REGISTRAZIONE</button>
+            <label>Collaboratore</label><select id="ins-chi"></select>
+            <label>Data</label><input type="date" id="ins-data">
+            <label>Ore</label><input type="number" id="ins-ore" step="0.5">
+            <button class="btn-main" onclick="saveData()">SALVA</button>
         </div>
     </div>
 
-    <!-- RIEPILOGO -->
     <div id="p-riepilogo" class="page">
         <button class="btn-back" onclick="nav('home')">← Indietro</button>
         <div id="content-riepilogo"></div>
     </div>
 
-    <!-- STORICO -->
     <div id="p-storico" class="page">
         <button class="btn-back" onclick="nav('home')">← Indietro</button>
         <div id="content-storico"></div>
     </div>
 
-    <!-- SETUP -->
     <div id="p-setup" class="page">
         <button class="btn-back" onclick="nav('home')">← Indietro</button>
         <div class="card">
-            <h3 style="margin-top:0">Collaboratori</h3>
-            <div id="list-collabs" style="margin-bottom:20px"></div>
-            <label>Nuovo Nome</label>
-            <input type="text" id="new-nome">
-            <label>Paga Oraria (€/h)</label>
-            <input type="number" id="new-paga">
-            <button class="btn-main" onclick="addCollab()">AGGIUNGI</button>
+            <h3>Nuovo Collaboratore</h3>
+            <input type="text" id="new-nome" placeholder="Nome">
+            <input type="number" id="new-paga" placeholder="Paga €/h">
+            <button class="btn-main" onclick="addCollab()">AGGIUNGI SU EXCEL</button>
+            <hr style="opacity:0.1; margin:20px 0;">
+            <h3>Collaboratori Attivi</h3>
+            <div id="list-collabs"></div>
         </div>
     </div>
 </div>
 
 <script>
-    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzyvzW3pUKw8dRa1CMFJd9-3N6HVdSnPBDtqUutwN2fD3o8athmMRbWEul3-vVXyHKtGg/exec"; 
-
-    let db = JSON.parse(localStorage.getItem('familySync')) || {
-        collabs: [{id:'1', nome:'Josie', paga:14}],
-        logs: []
-    };
+    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzyvzW3pUKw8dRa1CMFJd9-3N6HVdSnPBDtqUutwN2fD3o8athmMRbWEul3-vVXyHKtGg/exec";
+    let db = { logs: [], collabs: [] };
 
     async function syncFromCloud() {
         const banner = document.getElementById('sync-banner');
-        banner.style.display = 'block'; banner.innerText = "Sincronizzazione...";
+        banner.style.display = 'block';
         try {
             const response = await fetch(GOOGLE_URL);
-            const cloudData = await response.json();
-            db.logs = cloudData.map(l => ({
-                nome: l.nome,
-                data: l.data.split('T')[0],
-                ore: l.ore,
-                prezzo: l.prezzo,
-                pagato: l.saldato === "SI",
-                dataPagamento: l.dataPagamento ? l.dataPagamento.split('T')[0] : ""
-            }));
-            localStorage.setItem('familySync', JSON.stringify(db));
-            banner.innerText = "Aggiornato ✓";
-            setTimeout(() => banner.style.display = 'none', 2000);
-        } catch (e) {
-            banner.innerText = "Modalità Offline";
-        }
+            const data = await response.json();
+            db.logs = data.logs.map(l => ({...l, data: l.data.split('T')[0], dataPagamento: l.dataPagamento ? l.dataPagamento.split('T')[0] : ""}));
+            db.collabs = data.collabs;
+            banner.innerText = "Sincronizzato ✓";
+            setTimeout(() => banner.style.display = 'none', 1500);
+        } catch (e) { banner.innerText = "Errore Sync"; }
     }
 
     function nav(p) {
         document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
         document.getElementById('p-' + p).classList.add('active');
-        if(p === 'riepilogo') renderTab(false);
-        if(p === 'storico') renderTab(true);
+        if(p === 'riepilogo') renderRiepilogo();
+        if(p === 'storico') renderStorico();
         if(p === 'setup') renderCollabs();
         if(p === 'inserimento') {
-            document.getElementById('ins-chi').innerHTML = db.collabs.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+            document.getElementById('ins-chi').innerHTML = db.collabs.map(c => `<option value="${c.nome}">${c.nome} (${c.paga}€/h)</option>`).join('');
             document.getElementById('ins-data').valueAsDate = new Date();
         }
     }
 
     async function saveData() {
-        const col = db.collabs.find(c => c.id === document.getElementById('ins-chi').value);
-        const record = { 
-            nome: col.nome, 
-            data: document.getElementById('ins-data').value, 
-            ore: parseFloat(document.getElementById('ins-ore').value), 
-            prezzo: col.paga, 
-            azione: "REGISTRA" 
-        };
+        const nome = document.getElementById('ins-chi').value;
+        const col = db.collabs.find(c => c.nome === nome);
+        const record = { nome: nome, data: document.getElementById('ins-data').value, ore: parseFloat(document.getElementById('ins-ore').value), prezzo: col.paga, azione: "REGISTRA" };
         await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(record) });
-        await syncFromCloud();
-        nav('home');
+        await syncFromCloud(); nav('home');
     }
 
-    function renderTab(isStorico) {
-        const cont = document.getElementById(isStorico ? 'content-storico' : 'content-riepilogo');
-        const filtered = db.logs.filter(l => l.pagato === isStorico);
-        const grouped = filtered.reduce((acc, l) => { (acc[l.nome] = acc[l.nome] || []).push(l); return acc; }, {});
+    async function addCollab() {
+        const payload = { azione: "ADD_COLLAB", nome: document.getElementById('new-nome').value, paga: parseFloat(document.getElementById('new-paga').value) };
+        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        await syncFromCloud(); nav('setup');
+    }
+
+    function renderRiepilogo() {
+        const cont = document.getElementById('content-riepilogo');
+        const pending = db.logs.filter(l => l.saldato !== "SI");
+        const grouped = pending.reduce((acc, l) => { (acc[l.nome] = acc[l.nome] || []).push(l); return acc; }, {});
         
-        let html = `<h2 style="margin-left:10px">${isStorico ? 'Storico Pagamenti' : 'Da Saldare'}</h2>`;
-        
+        let html = `<h2>Da Saldare</h2>`;
         for(const nome in grouped) {
             const totEuro = grouped[nome].reduce((s, l) => s + (l.ore * l.prezzo), 0);
             const totOre = grouped[nome].reduce((s, l) => s + l.ore, 0);
-
-            html += `<div style="margin-bottom:30px">
-                <div class="group-header">
-                    <span>${nome}</span>
-                    <span class="col-center">${totOre}h</span>
-                    <span class="col-right">${totEuro}€</span>
-                </div>`;
-            
-            html += grouped[nome].map(l => `
-                <div class="group-row">
-                    <span>${l.data} ${isStorico ? `<span class="history-tag">Pagato: ${l.dataPagamento}</span>` : ''}</span>
-                    <span class="col-center">${l.ore}h</span>
-                    <span class="col-right">${l.ore * l.prezzo}€</span>
-                </div>`).join('');
-
-            if(!isStorico) {
-                html += `<button class="btn-main" style="border-radius:0 0 16px 16px" onclick="salda('${nome}')">SALDA ${nome.toUpperCase()}</button>`;
-            }
-            html += `</div>`;
+            html += `<div class="group-header"><span>${nome}</span><span class="col-center">${totOre}h</span><span class="col-right">${totEuro}€</span></div>`;
+            html += grouped[nome].map(l => `<div class="detail-row" style="background:var(--card)"><span>${l.data}</span><span class="col-center">${l.ore}h</span><span class="col-right">${l.ore*l.prezzo}€</span></div>`).join('');
+            html += `<button class="btn-main" onclick="salda('${nome}')" style="border-radius:0 0 16px 16px; margin-bottom:20px;">SALDA ORA</button>`;
         }
-        cont.innerHTML = html || `<div class="card">Nessun dato trovato.</div>`;
+        cont.innerHTML = html || "Tutto saldato!";
+    }
+
+    function renderStorico() {
+        const cont = document.getElementById('content-storico');
+        const done = db.logs.filter(l => l.saldato === "SI");
+        const groupedByCollab = done.reduce((acc, l) => { (acc[l.nome] = acc[l.nome] || []).push(l); return acc; }, {});
+
+        let html = `<h2>Storico Pagamenti</h2>`;
+        for(const nome in groupedByCollab) {
+            const totCollabEuro = groupedByCollab[nome].reduce((s, l) => s + (l.ore * l.prezzo), 0);
+            const totCollabOre = groupedByCollab[nome].reduce((s, l) => s + l.ore, 0);
+
+            html += `<div class="group-header"><span>${nome}</span><span class="col-center">${totCollabOre}h</span><span class="col-right">${totCollabEuro}€</span></div>`;
+            
+            // Raggruppa per data pagamento
+            const byDate = groupedByCollab[nome].reduce((acc, l) => { (acc[l.dataPagamento] = acc[l.dataPagamento] || []).push(l); return acc; }, {});
+            
+            for(const dataPag in byDate) {
+                const totBatchEuro = byDate[dataPag].reduce((s, l) => s + (l.ore * l.prezzo), 0);
+                const totBatchOre = byDate[dataPag].reduce((s, l) => s + l.ore, 0);
+                const batchId = `batch-${nome}-${dataPag}`.replace(/\s/g, '');
+
+                html += `
+                <div class="payment-batch">
+                    <div class="batch-summary" onclick="document.getElementById('${batchId}').style.display = document.getElementById('${batchId}').style.display === 'block' ? 'none' : 'block'">
+                        <span>📅 Pagato il ${dataPag}</span>
+                        <span class="col-center">${totBatchOre}h</span>
+                        <span class="col-right">${totBatchEuro}€</span>
+                    </div>
+                    <div id="${batchId}" class="batch-details">
+                        ${byDate[dataPag].map(l => `<div class="detail-row"><span>Lav. del ${l.data}</span><span class="col-center">${l.ore}h</span><span class="col-right">${l.ore*l.prezzo}€</span></div>`).join('')}
+                    </div>
+                </div>`;
+            }
+        }
+        cont.innerHTML = html || "Nessuno storico.";
     }
 
     async function salda(nome) {
-        if(!confirm(`Confermi il saldo per ${nome}?`)) return;
+        if(!confirm(`Confermi il pagamento per ${nome}?`)) return;
         await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({azione:"SALDA_TUTTO", nome:nome}) });
-        await syncFromCloud();
-        nav('home');
+        await syncFromCloud(); nav('home');
     }
 
     function renderCollabs() {
-        document.getElementById('list-collabs').innerHTML = db.collabs.map(c => 
-            `<div class="card" style="margin-bottom:10px; padding:15px; display:flex; justify-content:space-between;">
-                <b>${c.nome}</b> <span>${c.paga}€/h</span>
-            </div>`).join('');
-    }
-
-    function addCollab() {
-        db.collabs.push({id:Date.now().toString(), nome:document.getElementById('new-nome').value, paga:parseFloat(document.getElementById('new-paga').value)});
-        localStorage.setItem('familySync', JSON.stringify(db)); 
-        renderCollabs();
-        document.getElementById('new-nome').value = ''; document.getElementById('new-paga').value = '';
+        document.getElementById('list-collabs').innerHTML = db.collabs.map(c => `<div style="padding:10px; border-bottom:1px solid rgba(255,255,255,0.05)">${c.nome} - ${c.paga}€/h</div>`).join('');
     }
 
     window.onload = syncFromCloud;
