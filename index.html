@@ -4,27 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Family Log Pro</title>
+    <title>Family Log FIFO</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0F172A; --card: #1E293B; --primary: #6366F1; --text: #F8FAFC; --text-muted: #94A3B8; --input-bg: #334155; }
+        :root { --bg: #0F172A; --card: #1E293B; --primary: #6366F1; --text: #F8FAFC; --text-muted: #94A3B8; --input-bg: #334155; --success: #10B981; --warning: #F59E0B; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; }
         #sync-banner { background: var(--primary); color: white; padding: 8px; text-align: center; border-radius: 30px; margin-bottom: 15px; font-size: 11px; font-weight: 800; display: none; }
         .page { display: none; } .page.active { display: block; }
         .card { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; }
         .btn-back { background: var(--input-bg); color: var(--text); border: none; padding: 10px 18px; border-radius: 12px; margin-bottom: 15px; font-weight: 600; cursor: pointer; }
         input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--input-bg); background: var(--input-bg); color: white; margin: 10px 0 15px 0; }
         
-        /* Tabelle e Accordion */
-        .group-header { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 15px; font-weight: 800; background: rgba(99, 102, 241, 0.15); border-radius: 16px; color: var(--primary); margin-top: 20px; }
-        .payment-batch { background: rgba(255,255,255,0.03); margin: 5px 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        .batch-summary { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 12px 15px; cursor: pointer; font-weight: 600; font-size: 14px; border-left: 3px solid var(--primary); }
-        .batch-details { display: none; background: rgba(0,0,0,0.2); padding: 5px 0; }
-        .detail-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 8px 15px; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .group-header { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 15px; font-weight: 800; background: rgba(99, 102, 241, 0.15); border-radius: 16px 16px 0 0; color: var(--primary); }
+        .detail-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 12px 15px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
         .col-center { text-align: center; } .col-right { text-align: right; }
+        
+        /* FIFO Styles */
+        .fifo-active { border-left: 5px solid var(--success) !important; background: rgba(16, 185, 129, 0.15) !important; }
+        .fifo-partial { border-left: 5px solid var(--warning) !important; background: rgba(245, 158, 11, 0.15) !important; }
+
+        .payment-batch { background: rgba(255,255,255,0.03); margin: 5px 0; border-radius: 12px; overflow: hidden; }
+        .batch-summary { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 12px 15px; cursor: pointer; font-weight: 600; border-left: 3px solid var(--primary); }
     </style>
 </head>
 <body>
@@ -66,29 +69,26 @@
             <h3>Nuovo Collaboratore</h3>
             <input type="text" id="new-nome" placeholder="Nome">
             <input type="number" id="new-paga" placeholder="Paga €/h">
-            <button class="btn-main" onclick="addCollab()">AGGIUNGI SU EXCEL</button>
-            <hr style="opacity:0.1; margin:20px 0;">
-            <h3>Collaboratori Attivi</h3>
-            <div id="list-collabs"></div>
+            <button class="btn-main" onclick="addCollab()">AGGIUNGI</button>
+            <div id="list-collabs" style="margin-top:20px"></div>
         </div>
     </div>
 </div>
 
 <script>
-    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzyvzW3pUKw8dRa1CMFJd9-3N6HVdSnPBDtqUutwN2fD3o8athmMRbWEul3-vVXyHKtGg/exec";
+    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzyvzW3pUKw8dRa1CMFJd9-3N6HVdSnPBDtqUutwN2fD3o8athmMRbWEul3-vVXyHKtGg/exec"; 
     let db = { logs: [], collabs: [] };
 
     async function syncFromCloud() {
-        const banner = document.getElementById('sync-banner');
-        banner.style.display = 'block';
+        document.getElementById('sync-banner').style.display = 'block';
         try {
             const response = await fetch(GOOGLE_URL);
             const data = await response.json();
-            db.logs = data.logs.map(l => ({...l, data: l.data.split('T')[0], dataPagamento: l.dataPagamento ? l.dataPagamento.split('T')[0] : ""}));
+            db.logs = data.logs;
             db.collabs = data.collabs;
-            banner.innerText = "Sincronizzato ✓";
-            setTimeout(() => banner.style.display = 'none', 1500);
-        } catch (e) { banner.innerText = "Errore Sync"; }
+            document.getElementById('sync-banner').innerText = "Sincronizzato ✓";
+            setTimeout(() => document.getElementById('sync-banner').style.display = 'none', 1500);
+        } catch (e) { document.getElementById('sync-banner').innerText = "Offline"; }
     }
 
     function nav(p) {
@@ -98,7 +98,7 @@
         if(p === 'storico') renderStorico();
         if(p === 'setup') renderCollabs();
         if(p === 'inserimento') {
-            document.getElementById('ins-chi').innerHTML = db.collabs.map(c => `<option value="${c.nome}">${c.nome} (${c.paga}€/h)</option>`).join('');
+            document.getElementById('ins-chi').innerHTML = db.collabs.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
             document.getElementById('ins-data').valueAsDate = new Date();
         }
     }
@@ -111,12 +111,6 @@
         await syncFromCloud(); nav('home');
     }
 
-    async function addCollab() {
-        const payload = { azione: "ADD_COLLAB", nome: document.getElementById('new-nome').value, paga: parseFloat(document.getElementById('new-paga').value) };
-        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        await syncFromCloud(); nav('setup');
-    }
-
     function renderRiepilogo() {
         const cont = document.getElementById('content-riepilogo');
         const pending = db.logs.filter(l => l.saldato !== "SI");
@@ -124,59 +118,79 @@
         
         let html = `<h2>Da Saldare</h2>`;
         for(const nome in grouped) {
-            const totEuro = grouped[nome].reduce((s, l) => s + (l.ore * l.prezzo), 0);
-            const totOre = grouped[nome].reduce((s, l) => s + l.ore, 0);
-            html += `<div class="group-header"><span>${nome}</span><span class="col-center">${totOre}h</span><span class="col-right">${totEuro}€</span></div>`;
-            html += grouped[nome].map(l => `<div class="detail-row" style="background:var(--card)"><span>${l.data}</span><span class="col-center">${l.ore}h</span><span class="col-right">${l.ore*l.prezzo}€</span></div>`).join('');
-            html += `<button class="btn-main" onclick="salda('${nome}')" style="border-radius:0 0 16px 16px; margin-bottom:20px;">SALDA ORA</button>`;
+            const totResiduo = grouped[nome].reduce((s, l) => s + parseFloat(l.residuo), 0);
+            const safeNome = nome.replace(/\s/g, '');
+            html += `<div class="card" style="padding:0; overflow:hidden;">
+                <div class="group-header"><span>${nome}</span><span></span><span class="col-right">${totResiduo.toFixed(2)}€</span></div>
+                <div id="list-${safeNome}">
+                    ${grouped[nome].map(l => `<div class="detail-row row-${safeNome}" data-val="${l.residuo}">
+                        <span>${l.data.split('T')[0]}</span><span class="col-center">${l.ore}h</span><span class="col-right">${parseFloat(l.residuo).toFixed(2)}€</span>
+                    </div>`).join('')}
+                </div>
+                <div style="padding:15px; background:rgba(0,0,0,0.2); display:flex; gap:10px;">
+                    <input type="number" id="pay-${safeNome}" placeholder="Importo" style="margin:0; flex:1" oninput="highlightFIFO('${safeNome}', this.value)">
+                    <button class="btn-main" style="width:auto; padding:0 20px" onclick="eseguiPagamento('${nome}', '${safeNome}')">PAGA</button>
+                </div>
+            </div>`;
         }
         cont.innerHTML = html || "Tutto saldato!";
     }
 
+    function highlightFIFO(safeNome, valore) {
+        const rows = document.querySelectorAll(`.row-${safeNome}`);
+        let budget = parseFloat(valore) || 0;
+        rows.forEach(row => {
+            const costo = parseFloat(row.getAttribute('data-val'));
+            row.classList.remove('fifo-active', 'fifo-partial');
+            if (budget <= 0) return;
+            if (budget >= costo - 0.01) { row.classList.add('fifo-active'); budget -= costo; }
+            else { row.classList.add('fifo-partial'); budget = 0; }
+        });
+    }
+
+    async function eseguiPagamento(nome, safeNome) {
+        const importo = document.getElementById('pay-' + safeNome).value;
+        if(!importo || importo <= 0) return;
+        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({azione:"PAGAMENTO_PARZIALE", nome:nome, importoVersato: importo}) });
+        await syncFromCloud(); nav('home');
+    }
+
     function renderStorico() {
         const cont = document.getElementById('content-storico');
-        const done = db.logs.filter(l => l.saldato === "SI");
-        const groupedByCollab = done.reduce((acc, l) => { (acc[l.nome] = acc[l.nome] || []).push(l); return acc; }, {});
-
-        let html = `<h2>Storico Pagamenti</h2>`;
-        for(const nome in groupedByCollab) {
-            const totCollabEuro = groupedByCollab[nome].reduce((s, l) => s + (l.ore * l.prezzo), 0);
-            const totCollabOre = groupedByCollab[nome].reduce((s, l) => s + l.ore, 0);
-
-            html += `<div class="group-header"><span>${nome}</span><span class="col-center">${totCollabOre}h</span><span class="col-right">${totCollabEuro}€</span></div>`;
-            
-            // Raggruppa per data pagamento
-            const byDate = groupedByCollab[nome].reduce((acc, l) => { (acc[l.dataPagamento] = acc[l.dataPagamento] || []).push(l); return acc; }, {});
-            
-            for(const dataPag in byDate) {
-                const totBatchEuro = byDate[dataPag].reduce((s, l) => s + (l.ore * l.prezzo), 0);
-                const totBatchOre = byDate[dataPag].reduce((s, l) => s + l.ore, 0);
-                const batchId = `batch-${nome}-${dataPag}`.replace(/\s/g, '');
-
-                html += `
-                <div class="payment-batch">
-                    <div class="batch-summary" onclick="document.getElementById('${batchId}').style.display = document.getElementById('${batchId}').style.display === 'block' ? 'none' : 'block'">
-                        <span>📅 Pagato il ${dataPag}</span>
-                        <span class="col-center">${totBatchOre}h</span>
-                        <span class="col-right">${totBatchEuro}€</span>
+        const done = db.logs.filter(l => l.saldato === "SI" || l.saldato === "PARZIALE");
+        const grouped = done.reduce((acc, l) => { (acc[l.nome] = acc[l.nome] || []).push(l); return acc; }, {});
+        let html = `<h2>Storico</h2>`;
+        for(const nome in grouped) {
+            const byDate = grouped[nome].reduce((acc, l) => { 
+                const d = l.dataPagamento.split('T')[0];
+                (acc[d] = acc[d] || []).push(l); return acc; 
+            }, {});
+            html += `<div class="group-header"><span>${nome}</span><span></span><span></span></div>`;
+            for(const d in byDate) {
+                const tot = byDate[d].reduce((s, l) => s + parseFloat(l.pagatoEffettivo), 0);
+                const id = 'h-'+nome+d;
+                html += `<div class="payment-batch">
+                    <div class="batch-summary" onclick="const e=document.getElementById('${id}'); e.style.display=e.style.display==='block'?'none':'block'">
+                        <span>📅 ${d}</span><span></span><span class="col-right">${tot.toFixed(2)}€</span>
                     </div>
-                    <div id="${batchId}" class="batch-details">
-                        ${byDate[dataPag].map(l => `<div class="detail-row"><span>Lav. del ${l.data}</span><span class="col-center">${l.ore}h</span><span class="col-right">${l.ore*l.prezzo}€</span></div>`).join('')}
+                    <div id="${id}" style="display:none; background:rgba(0,0,0,0.2)">
+                        ${byDate[d].map(l => `<div class="detail-row"><span>Lav. ${l.data.split('T')[0]}</span><span></span><span class="col-right">${parseFloat(l.pagatoEffettivo).toFixed(2)}€</span></div>`).join('')}
                     </div>
                 </div>`;
             }
         }
-        cont.innerHTML = html || "Nessuno storico.";
+        cont.innerHTML = html;
     }
 
-    async function salda(nome) {
-        if(!confirm(`Confermi il pagamento per ${nome}?`)) return;
-        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({azione:"SALDA_TUTTO", nome:nome}) });
-        await syncFromCloud(); nav('home');
+    async function addCollab() {
+        const n = document.getElementById('new-nome').value;
+        const p = document.getElementById('new-paga').value;
+        await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({azione:"ADD_COLLAB", nome:n, paga:p}) });
+        await syncFromCloud(); nav('setup');
     }
 
     function renderCollabs() {
-        document.getElementById('list-collabs').innerHTML = db.collabs.map(c => `<div style="padding:10px; border-bottom:1px solid rgba(255,255,255,0.05)">${c.nome} - ${c.paga}€/h</div>`).join('');
+        document.getElementById('list-collabs').innerHTML = db.collabs.map(c => `<div class="card" style="margin-bottom:5px; padding:10px">${c.nome} - ${c.paga}€/h</div>`).join('');
     }
 
     window.onload = syncFromCloud;
